@@ -1,0 +1,43 @@
+#dict-card {
+  transition: all 1s;
+  min-height: 120px;
+  width: 250px;
+  padding: 1.5em;
+  z-index: 100;
+  background-color: #ffffff80;
+  backdrop-filter: blur(15px);
+  border-radius: 10px;
+  box-shadow: 0 0 10px #00000040;
+  position: absolute;
+  font-size: 12px;
+
+  display: flex;
+  flex-direction: column;
+
+}
+
+.title {
+  font-size: 2em;
+  font-weight: bold;
+  color: #000;
+}
+
+#phoneticBox {
+  display: flex;
+  justify-content: stretch;
+  align-items: flex-start;
+  height: 2.5em;
+}
+
+.phonetic {
+  font-size: 1em;
+  color: #444;
+  width: 100%;
+  line-height: 2em;
+}
+
+.explains {
+  margin: 5px 0;
+  font-size: 1em;
+  color: #222;
+}
