@@ -1,0 +1,38 @@
+{
+    "manifest_version": 2,
+  
+    "name": "DictCard",
+    "version": "0.0.1",
+    "description": "DictCard 字典卡，一个简洁的划词查询工具",
+  
+    "permissions": [
+      "https://dict.youdao.com/*",
+      "https://fanyi.youdao.com/*",
+      "http://dict.youdao.com/*",
+      "http://fanyi.youdao.com/*",
+      "https://openapi.youdao.com/*",
+      "contextMenus",
+      "tabs",
+      "storage",
+      "notifications"
+    ],
+  
+    "background": {
+        "persistent": true,
+        "scripts": [ "src/config.js", "src/sha256.js", "src/background.js" ]
+     },
+  
+    "content_scripts": [ {
+      "all_frames": true,
+      "css": ["src/card.css"],
+      "js": ["src/config.js", "src/select.js"],
+      "matches": ["<all_urls>"]
+        
+    } ],
+  
+    "icons": { 
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png" 
+    }
+  }
