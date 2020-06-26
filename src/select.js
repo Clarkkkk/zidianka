@@ -8,7 +8,8 @@ function getSelectedText(event) {
   // else, create a new one
   if (!event.target.classList.contains('dict-card')) {
     if (document.getElementById('dict-card')) {
-      document.getElementById('dict-card').remove();
+      document.getElementById('dict-card').style.opacity = '0';
+      setTimeout(() => document.getElementById('dict-card').remove(), 200);
       selectedObj = null;
     } else {
       const selected = selectedObj.toString();
@@ -41,7 +42,7 @@ function cardConstruct(response) {
   const container = document.createElement('div');
   container.id = 'dict-card';
   container.classList.add('dict-card');
-  container.style.visibility = 'hidden';
+  container.style.opacity = '0';
   document.documentElement.appendChild(container);
 
   // display explains
@@ -218,7 +219,7 @@ function positionFigure(event, card, selected) {
   }
   card.style.top = cardTop + 'px';
   card.style.left = cardLeft + 'px';
-  card.style.visibility = '';
+  card.style.opacity = '1';
 }
 
 

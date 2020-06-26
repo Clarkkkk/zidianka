@@ -1,5 +1,5 @@
 #dict-card {
-  transition: all 1s;
+  transition: all 250ms;
   min-height: 80px;
   min-width: 200px;
   max-width: 300px;
