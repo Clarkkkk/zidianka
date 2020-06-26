@@ -1,43 +1,84 @@
 #dict-card {
   transition: all 1s;
-  min-height: 120px;
-  width: 250px;
+  min-height: 80px;
+  min-width: 200px;
+  max-width: 300px;
   padding: 1.5em;
   z-index: 100;
-  background-color: #ffffff80;
-  backdrop-filter: blur(15px);
+  background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0 0 10px #00000040;
   position: absolute;
-  font-size: 12px;
-
+  font-size: 13px;
+  font-family: 'Source Sans Pro', arial, sans-serif;
   display: flex;
   flex-direction: column;
+}
 
+@supports (backdrop-filter: blur(15px)) {
+  #dict-card {
+    background-color: #ffffff80;
+    backdrop-filter: blur(15px);
+  }
+}
+
+.titleBox {
+  display: flex;
+  align-items: center;
 }
 
 .title {
-  font-size: 2em;
+  font-size: 1.7em;
   font-weight: bold;
   color: #000;
+  display: block;
+  max-width: 270px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-#phoneticBox {
+#phoneticLine {
   display: flex;
-  justify-content: stretch;
-  align-items: flex-start;
-  height: 2.5em;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.phoneticBox {
+  font-size: 1em;
+  margin: 0.5em 0.3em 0.5em 0;
+}
+
+.area {
+  color: #eee;
+  background-color: #666;
+  border: 1px solid #666;
+  padding: 2px;
+  border-radius: 5px 0 0 5px;
 }
 
 .phonetic {
-  font-size: 1em;
-  color: #444;
-  width: 100%;
-  line-height: 2em;
+  color: #666;
+  border: 1px solid #666;
+  border-radius: 0 5px 5px 0;
+  padding: 2px;
+  line-height: 1.2em;
+}
+
+.speaker {
+  height: 1.2em;
+  vertical-align: bottom;
+  margin-left: 0.5em;
+  opacity: 0.5;
+  cursor: pointer;
 }
 
 .explains {
   margin: 5px 0;
   font-size: 1em;
+  line-height: 1.5em;
   color: #222;
+  min-width: 200px;
+  max-width: 250px;
 }
