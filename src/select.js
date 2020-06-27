@@ -1,27 +1,24 @@
 /* global chrome */
-document.documentElement.addEventListener('mouseup', getSelectedText);
-function getSelectedText(event) {
-  let selectedObj = window.getSelection();
-  // if there is already a card
-  // remove the card when click elsewhere again
-  // and clear the Selection object immediately
-  // else, create a new one
+document.documentElement.addEventListener('mouseup', (event) => {
+  const selectedObj = window.getSelection();
+  const selected = selectedObj.toString();
+  if (selected.length > 0 && selected.length < 150) {
+    chrome.runtime.sendMessage({selected: selected}, (response) => {
+      const card = cardConstruct(response);
+      positionFigure(event, card, selectedObj);
+    });
+  }
+});
+
+// if there is already a card
+// remove the card when click outside the card
+document.documentElement.addEventListener('mousedown', (event) => {
   if (!event.target.classList.contains('dict-card')) {
     if (document.getElementById('dict-card')) {
-      document.getElementById('dict-card').style.opacity = '0';
-      setTimeout(() => document.getElementById('dict-card').remove(), 200);
-      selectedObj = null;
-    } else {
-      const selected = selectedObj.toString();
-      if (selected.length > 0 && selected.length < 150) {
-        chrome.runtime.sendMessage({selected: selected}, (response) => {
-          const card = cardConstruct(response);
-          positionFigure(event, card, selectedObj);
-        });
-      }
+      document.getElementById('dict-card').remove();
     }
   }
-}
+});
 
 function cardConstruct(response) {
   // response text
@@ -73,6 +70,8 @@ function cardConstruct(response) {
       }
       appendNewElemWithText('span', translation, container, 'explains');
     }
+  } else {
+    alert('查询失败，错误代码为： ' + errorCode);
   }
   return container;
 }
@@ -221,23 +220,3 @@ function positionFigure(event, card, selected) {
   card.style.left = cardLeft + 'px';
   card.style.opacity = '1';
 }
-
-
-// get mouse coordinate(for test)
-/*
-const ordinate = appendNewElemWithText('div', ' ', document.documentElement);
-ordinate.style.position = 'absolute';
-ordinate.style.zIndex = '1000';
-ordinate.style.fontSize = '14px';
-ordinate.style.border = '1px solid black';
-ordinate.style.backgroundColor = 'white';
-
-document.documentElement.addEventListener('mousedown', (event) => {
-  let X = event.pageX + 2;
-  let Y = event.pageY;
-  let text = 'X: ' + X + ', ' + 'Y: ' + Y;
-  ordinate.style.left = X + 'px';
-  ordinate.style.top = Y + 'px';
-  ordinate.textContent = text;
-});
-*/
