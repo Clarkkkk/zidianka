@@ -33,6 +33,8 @@
       "matches": ["<all_urls>"]
         
     }],
+
+    "options_page": "src/options.html",
   
     "icons": { 
       "16": "icons/icon16.png",
@@ -42,6 +44,9 @@
 
     "web_accessible_resources": [
       "src/speaker.png",
-      "src/speaking.gif"
+      "src/speaking.gif",
+      "src/apple-touch-icon.png",
+      "src/favicon-32x32.png",
+      "src/favicon-16x16.png"
     ]
   }

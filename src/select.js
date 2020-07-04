@@ -1,9 +1,32 @@
 /* global chrome */
+// get user options
+let options = {
+  appID: '',
+  appKey: '',
+  withCtrl: false,
+  wordLimit: Infinity
+};
+chrome.storage.sync.get(null, (result) => {
+  options = result;
+});
+
 document.documentElement.addEventListener('mouseup', (event) => {
+  if (options.withCtrl) {
+    if (!event.ctrlKey) {
+      return;
+    }
+  }
   const selectedObj = window.getSelection();
   const selected = selectedObj.toString();
-  if (selected.length > 0 && selected.length < 150) {
-    chrome.runtime.sendMessage({selected: selected}, (response) => {
+  if (options.appID === '') {
+    alert('字典卡还没有准备好，请稍后重试');
+  } else if (selected.length > 0 && selected.length < options.wordLimit &&
+    !event.target.classList.contains('dict-card')) {
+    chrome.runtime.sendMessage({
+      selected: selected,
+      appID: options.appID,
+      appKey: options.appKey
+    }, (response) => {
       const card = cardConstruct(response);
       positionFigure(event, card, selectedObj);
     });
@@ -27,7 +50,7 @@ function cardConstruct(response) {
   const isWord = responseObj.isWord;
   const returnPhrase = responseObj.returnPhrase;
   const translation = responseObj.translation;
-  const webDef = responseObj.web;
+  // const webDef = responseObj.web;
   const basicDef = responseObj.basic;
   const query = responseObj.query;
 
@@ -184,7 +207,8 @@ function positionFigure(event, card, selected) {
         // update the current-top
         maxHeight += item.height;
         maxLeft = maxLeft < item.left ? maxLeft : item.left;
-        maxRight = maxRight > (item.left + item.width) ? maxRight : (item.left + item.width);
+        maxRight = maxRight > (item.left + item.width) ?
+          maxRight : (item.left + item.width);
         currentTop = item.top;
       } else {
         // should never occur
@@ -211,7 +235,8 @@ function positionFigure(event, card, selected) {
   }
   // if the card reachh outside the viewport, drag it back
   if (cardRight > document.documentElement.clientWidth) {
-    cardLeft = document.documentElement.clientWidth - cardWidth - 5 + window.scrollX;
+    cardLeft = document.documentElement.clientWidth -
+      cardWidth - 5 + window.scrollX;
   }
   if (cardLeft < window.scrollX + 5) {
     cardLeft = window.scrollX + 5;

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>字典卡设置</title>
+    <meta charset="utf-8">
+    <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="stylesheet" type="text/css" href="options.css">
+    <script defer src="options.js"></script>
+  </head>
+  <body>
+    <main id="main">
+      <header>字典卡设置</header>
+        <form>
+          <fieldset>
+            <legend>有道 API</legend>
+            <hr>
+            <label for="appID">应用 ID
+              <input name="appID" type="text" id="appID">
+            </label>
+            <br>
+            <label>应用密钥
+              <input name="appKey" type="text" id="appKey">
+            </label>
+
+          </fieldset>
+          <fieldset>
+            <legend>偏好设置</legend>
+            <hr>
+            <label for="with-ctrl">按住 Ctrl 查词
+              <input name="with-ctrl" type="checkbox" id="with-ctrl" value="withCtrl">
+            </label>
+            <br>
+            <label for="word-limit">选择超过多少字符后不进行查词
+              <input name="word-limit" type="range"
+               min="1" max="6" step="1" value="2" id="word-limit" list="limit">
+              <datalist id="limit">
+                <option value="1"></option>
+                <option value="2"></option>
+                <option value="3"></option>
+                <option value="4"></option>
+                <option value="5"></option>
+                <option value="6"></option>
+              </datalist>
+            </label>
+          </fieldset>
+          <div id="save"  role="button" tabindex="0">保 存</div>
+        </form>
+    </main>
+    <footer>&copy 2020 Made by Clark.</footer>
+
+  </body>
+</html>
