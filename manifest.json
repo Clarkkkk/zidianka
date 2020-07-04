@@ -2,7 +2,7 @@
     "manifest_version": 2,
   
     "name": "DictCard",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "description": "DictCard 字典卡，一个简洁的划词查询工具",
   
     "permissions": [
@@ -19,7 +19,7 @@
   
     "background": {
         "persistent": true,
-        "scripts": [ "src/config.js", "src/sha256.js", "src/background.js" ]
+        "scripts": ["src/sha256.js", "src/background.js" ]
      },
 
      "browser_action": {
@@ -29,7 +29,7 @@
     "content_scripts": [ {
       "all_frames": true,
       "css": ["src/card.css"],
-      "js": ["src/config.js", "src/select.js"],
+      "js": ["src/select.js"],
       "matches": ["<all_urls>"]
         
     }],
