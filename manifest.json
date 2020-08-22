@@ -2,7 +2,7 @@
     "manifest_version": 2,
   
     "name": "DictCard",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "DictCard 字典卡，一个简洁的划词查询工具",
   
     "permissions": [

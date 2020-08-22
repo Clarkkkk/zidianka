@@ -31,14 +31,13 @@ window.onload = function() {
 
 function saveOptions() {
   const limitNum = limitConvert[wordLimit.value][0];
-  console.log(withCtrl.checked);
   chrome.storage.sync.set(
-      {
-        appID: appID.value,
-        appKey: appKey.value,
-        withCtrl: withCtrl.checked,
-        wordLimit: limitNum
-      }, successPopUp);
+    {
+      appID: appID.value,
+      appKey: appKey.value,
+      withCtrl: withCtrl.checked,
+      wordLimit: limitNum
+    }, successPopUp);
 }
 
 // click or use keyboard to save options

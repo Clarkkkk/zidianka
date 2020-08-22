@@ -1,5 +1,5 @@
 div.container {
-  transition: opacity 250ms;
+  transition: opacity 200ms;
   min-height: 80px;
   min-width: 200px;
   max-width: 300px;
@@ -48,6 +48,7 @@ div.container {
 figure {
   font-size: 1em;
   margin: 0.5em 0.3em 0.5em 0;
+  display: flex;
 }
 
 .area {
@@ -69,10 +70,10 @@ figure {
 .voice {
   height: 1.2em;
   width: 1.2em;
-  vertical-align: center;
   margin-left: 0.5em;
   opacity: 0.5;
   cursor: pointer;
+  align-self: center;
 }
 
 .explains {

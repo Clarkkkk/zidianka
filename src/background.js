@@ -23,7 +23,6 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse) {
   function getURL(queryWord, options) {
     // parameters
     let requestURL = 'https://openapi.youdao.com/api';
-    console.log(options);
     const appID = options.appID;
     const appKey = options.appKey;
     const salt = (new Date).getTime();

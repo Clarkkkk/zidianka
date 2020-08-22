@@ -35,7 +35,6 @@ function initialize(options) {
       // if the host doesn't exist, initialize it
       if (!host) {
         host = document.createElement('div');
-        host.style.opacity = '0';
         document.documentElement.appendChild(host);
         const root = host.attachShadow({ mode: 'open' });
         const link = document.createElement('link');
@@ -53,16 +52,14 @@ function initialize(options) {
     function getData(options) {
       return new Promise((resolve) => {
         const message = { selected: selected, options: options };
-        console.log(message);
         chrome.runtime.sendMessage(message, (response) => resolve(response));
       });
     }
 
     function createCard(data) {
-      console.log(data);
       const card = new Card(data);
       host.shadowRoot.appendChild(card.container);
-      host.style.opacity = '1';
+      card.locate(selectedObj.getRangeAt(0).getClientRects());
     }
   }
 
@@ -71,7 +68,7 @@ function initialize(options) {
       const cards = host.shadowRoot.querySelectorAll('div.container');
       for (const item of cards) {
         item.style.opacity = '0';
-        setTimeout(() => item.remove(), 250);
+        setTimeout(() => item.remove(), 200);
       }
     }
   }
