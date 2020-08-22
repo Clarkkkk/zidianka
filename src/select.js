@@ -86,8 +86,14 @@ class Card {
     this._query = obj.query;
     this.container;
     this._container();
-    this._phonetic();
-    this._explains();
+    if (this._basic) {
+      this._phonetic();
+      for (const entry of this._basic['explains']) {
+        this._createElem('span', 'explains', entry);
+      }
+    } else {
+      this._createElem('span', 'explains', this._translation);
+    }
   }
 
   _container() {
@@ -142,16 +148,6 @@ class Card {
 
     createPhoElem('US', USPhonetic, USVoice);
     createPhoElem('UK', UKPhonetic, UKVoice);
-  }
-
-  _explains() {
-    if (this._basic['explains']) {
-      for (const entry of this._basic['explains']) {
-        this._createElem('span', 'explains', entry);
-      }
-    } else {
-      this._createElem('span', 'explains', this._translation);
-    }
   }
 
   _createElem(type, className, text, parent = this.container) {
