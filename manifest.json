@@ -28,7 +28,6 @@
   
     "content_scripts": [ {
       "all_frames": true,
-      "css": ["src/card.css"],
       "js": ["src/select.js"],
       "matches": ["<all_urls>"]
         
@@ -45,8 +44,6 @@
     "web_accessible_resources": [
       "src/speaker.png",
       "src/speaking.gif",
-      "src/apple-touch-icon.png",
-      "src/favicon-32x32.png",
-      "src/favicon-16x16.png"
+      "src/card.css"
     ]
   }

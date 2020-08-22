@@ -18,7 +18,8 @@ window.onload = function() {
     if (result.appID) {
       appID.value = result.appID;
       appKey.value = result.appKey;
-      withCtrl.value = result.withCtrl;
+      withCtrl.checked = result.withCtrl;
+      console.log(result.withCtrl);
       for (const index in limitConvert) {
         if (limitConvert[index][0] === result.wordLimit) {
           wordLimit.value = parseInt(index);
@@ -30,6 +31,7 @@ window.onload = function() {
 
 function saveOptions() {
   const limitNum = limitConvert[wordLimit.value][0];
+  console.log(withCtrl.checked);
   chrome.storage.sync.set(
       {
         appID: appID.value,
@@ -64,7 +66,7 @@ wordLimit.addEventListener('mouseenter', (event) => {
 });
 
 // hide the indicator when mouse leaves
-wordLimit.addEventListener('mouseleave', (event) => {
+wordLimit.addEventListener('mouseleave', () => {
   if (document.getElementById('indicator')) {
     document.getElementById('indicator').remove();
   }

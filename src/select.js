@@ -1,247 +1,252 @@
 /* global chrome */
-// get user options
-let options = {
-  appID: '',
-  appKey: '',
-  withCtrl: false,
-  wordLimit: Infinity
-};
-chrome.storage.sync.get(null, (result) => {
-  options = result;
-});
+// get user's options at first, and then initialize
+getOptions().then((options) => initialize(options));
 
-document.documentElement.addEventListener('mouseup', (event) => {
-  if (options.withCtrl) {
-    if (!event.ctrlKey) {
-      return;
+function getOptions() {
+  return new Promise((resolve) => {
+    chrome.storage.sync.get(null, (options) => resolve(options));
+  });
+}
+
+function initialize(options) {
+  // shadow root host
+  let host;
+  // query
+  document.documentElement.addEventListener('mouseup', mouseupHandler);
+  // remove all the cards when click outside them
+  document.documentElement.addEventListener('mousedown', mousedownHandler);
+
+  function mouseupHandler(event) {
+    const selectedObj = window.getSelection();
+    const selected = selectedObj.toString();
+
+    // requirements to activate querying
+    const requirements =
+    options.withCtrl &&
+    event.ctrlKey &&
+    selected.length > 0 &&
+    selected.length < options.wordLimit &&
+    event.target !== host;
+
+    // create or return a shadow root
+    // then fetch the data
+    // then construct the card
+    if (requirements) {
+      // if the host doesn't exist, initialize it
+      if (!host) {
+        host = document.createElement('div');
+        host.style.opacity = '0';
+        document.documentElement.appendChild(host);
+        const root = host.attachShadow({ mode: 'open' });
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = chrome.extension.getURL('src/card.css');
+        link.type = 'text/css';
+        root.appendChild(link);
+      }
+      // fetch the aata and create the card
+      getData(options)
+        .then((response) => createCard(response))
+        .catch((e) => console.log(e));
+    }
+
+    function getData(options) {
+      return new Promise((resolve) => {
+        const message = { selected: selected, options: options };
+        console.log(message);
+        chrome.runtime.sendMessage(message, (response) => resolve(response));
+      });
+    }
+
+    function createCard(data) {
+      console.log(data);
+      const card = new Card(data);
+      host.shadowRoot.appendChild(card.container);
+      host.style.opacity = '1';
     }
   }
-  const selectedObj = window.getSelection();
-  const selected = selectedObj.toString();
-  if (options.appID === '') {
-    alert('字典卡还没有准备好，请稍后重试');
-  } else if (selected.length > 0 && selected.length < options.wordLimit &&
-    !event.target.classList.contains('dict-card')) {
-    chrome.runtime.sendMessage({
-      selected: selected,
-      appID: options.appID,
-      appKey: options.appKey
-    }, (response) => {
-      const card = cardConstruct(response);
-      positionFigure(event, card, selectedObj);
-    });
-  }
-});
 
-// if there is already a card
-// remove the card when click outside the card
-document.documentElement.addEventListener('mousedown', (event) => {
-  if (!event.target.classList.contains('dict-card')) {
-    if (document.getElementById('dict-card')) {
-      document.getElementById('dict-card').remove();
+  function mousedownHandler(event) {
+    if (host && event.target !== host) {
+      const cards = host.shadowRoot.querySelectorAll('div.container');
+      for (const item of cards) {
+        item.style.opacity = '0';
+        setTimeout(() => item.remove(), 250);
+      }
     }
   }
-});
+}
 
-function cardConstruct(response) {
-  // response text
-  const responseObj = JSON.parse(response);
-  const errorCode = responseObj.errorCode;
-  const isWord = responseObj.isWord;
-  const returnPhrase = responseObj.returnPhrase;
-  const translation = responseObj.translation;
-  // const webDef = responseObj.web;
-  const basicDef = responseObj.basic;
-  const query = responseObj.query;
+// prefix "-" means that the property or method should only
+// be used inside the class
+class Card {
+  constructor(obj) {
+    this._errorCode = obj.errorCode;
+    this._isWord = obj.isWord;
+    this._returnPhrase = obj.returnPhrase;
+    this._translation = obj.translation;
+    this._basic = obj.basic;
+    this._query = obj.query;
+    this.container;
+    this._container();
+    this._phonetic();
+    this._explains();
+  }
 
-  // construct the display card
-  // since where to put it is not clear yet
-  // and cannot calculate its dimensions before append it to the DOM
-  // let's make it invisible for the moment
-  // and append it to the root element
-  const container = document.createElement('div');
-  container.id = 'dict-card';
-  container.classList.add('dict-card');
-  container.style.opacity = '0';
-  document.documentElement.appendChild(container);
+  _container() {
+    this.container = document.createElement('div');
+    this.container.classList.add('dictionary-card', 'container');
+    this.container.style.opacity = '0';
+    const titleText = this._isWord ? this._returnPhrase : this._query;
+    this._createElem('span', 'title', titleText);
+  }
 
-  // display explains
-  if (errorCode == 0) {
-    if (isWord) {
-      appendNewElemWithText('span', returnPhrase, container, 'title');
-      const basicUSPhonetic = basicDef['us-phonetic'];
-      const basicUKPhonetic = basicDef['uk-phonetic'];
-      const UKVoiceURL = basicDef['uk-speech'];
-      const USVoiceURL = basicDef['us-speech'];
-      const basicExplains = basicDef['explains'];
-      const phoneticLine = document.createElement('span');
-      phoneticLine.id = 'phoneticLine';
-      phoneticLine.classList.add('dict-card');
-      container.appendChild(phoneticLine);
-      phoneticBuild(basicUSPhonetic, USVoiceURL, 'US', phoneticLine);
-      phoneticBuild(basicUKPhonetic, UKVoiceURL, 'UK', phoneticLine);
-      for (const entry of basicExplains) {
-        appendNewElemWithText('span', entry, container, 'explains');
+  _phonetic() {
+    const USPhonetic = this._basic['us-phonetic'];
+    const UKPhonetic = this._basic['uk-phonetic'];
+    const USVoice = this._basic['us-speech'];
+    const UKVoice = this._basic['uk-speech'];
+
+    const phoneticLine = this._createElem('div', 'phonetic-line');
+    const createPhoElem = (area, phonetic, url) => {
+      if (phonetic) {
+        const figure = document.createElement('figure');
+        phoneticLine.appendChild(figure);
+        // create phonetic element
+        this._createElem('span', 'area', area, figure);
+        this._createElem('span', 'phonetic', phonetic, figure);
+        // create voice speaker element
+        const voiceElem = this._createElem('img', 'voice', '', figure);
+        const iconURL = chrome.runtime.getURL('src/speaker.png');
+        const playingIconURL = chrome.runtime.getURL('src/speaking.gif');
+        voiceElem.src = iconURL;
+        voiceElem.alt = 'speaker';
+
+        // create the pronounciation voice source
+        const audio = document.createElement('audio');
+        audio.src = url;
+        this.container.appendChild(audio);
+
+        // display an animation while playing
+        audio.addEventListener('play', () => {
+          voiceElem.src = playingIconURL;
+        });
+        // end the animation when the playback ends
+        audio.addEventListener('ended', () => {
+          voiceElem.src = iconURL;
+        });
+
+        // click the speaker to start playing
+        voiceElem.addEventListener('click', (event) => {
+          audio.play();
+        });
+      }
+    };
+
+    createPhoElem('US', USPhonetic, USVoice);
+    createPhoElem('UK', UKPhonetic, UKVoice);
+  }
+
+  _explains() {
+    if (this._basic['explains']) {
+      for (const entry of this._basic['explains']) {
+        this._createElem('span', 'explains', entry);
       }
     } else {
-      const titleBox = document.createElement('span');
-      titleBox.classList.add('titleBox');
-      container.appendChild(titleBox);
-      appendNewElemWithText('span', query, titleBox, 'title');
-      if (responseObj['speakUrl']) {
-        speakerBuild(responseObj['speakUrl'], titleBox);
+      this._createElem('span', 'explains', this._translation);
+    }
+  }
+
+  _createElem(type, className, text, parent = this.container) {
+    const element = document.createElement(type);
+    if (text) {
+      const textNode = document.createTextNode(text);
+      element.appendChild(textNode);
+    }
+    element.classList.add('dictionary-card', className);
+    parent.appendChild(element);
+    return element;
+  }
+
+  locate(selectedRects) {
+    const card = this.container;
+    const cardWidth = card.clientWidth;
+    const cardHeight = card.clientHeight;
+    let cardTop;
+    let cardLeft;
+    let maxHeight;
+    let maxWidth;
+    let top;
+    let currentTop;
+    let maxLeft;
+    let maxRight;
+
+    if (selectedRects.length == 1) {
+      // the simplest situation
+      top = selectedRects[0].top;
+      currentTop = top;
+      maxLeft = selectedRects[0].left;
+      maxHeight = selectedRects[0].height;
+      maxWidth = selectedRects[0].width;
+    } else {
+      // for multiple rects in a line and multiple lines with multiple rects
+      for (const item of selectedRects) {
+        if (!top) {
+          // initialize everything
+          // top: the very top of all rects
+          // currentTop: top of the current item
+          // max-parameter: the outmost extent in every dimension
+          top = item.top;
+          currentTop = top;
+          maxLeft = item.left;
+          maxHeight = item.height;
+          maxWidth = item.width;
+          maxRight = item.left + item.width;
+        } else if (item.top == currentTop) {
+          // rects in the same line extend the right border
+          maxRight += item.width;
+        } else if (item.top > currentTop) {
+          // a rect in another line
+          // increase height
+          // calculate the potential max-left and max-right increase
+          // update the current-top
+          maxHeight += item.height;
+          maxLeft = maxLeft < item.left ? maxLeft : item.left;
+          maxRight = maxRight > (item.left + item.width) ?
+            maxRight : (item.left + item.width);
+          currentTop = item.top;
+        } else {
+          // should never occur
+          console.log('Exception!');
+          // console.log(maxLeft);
+          // console.log(top);
+          // console.log(item);
+        }
       }
-      appendNewElemWithText('span', translation, container, 'explains');
+      // calculate the max-width
+      maxWidth = maxRight - maxLeft;
     }
-  } else {
-    alert('查询失败，错误代码为： ' + errorCode);
-  }
-  return container;
-}
 
-// auxiliary function to create the phonetic line
-function phoneticBuild(phonetic, voiceURL, area, container) {
-  if (phonetic) {
-    // display phonetic notations
-    const phoneticBox = document.createElement('span');
-    phoneticBox.classList.add('dict-card', 'phoneticBox');
-    container.appendChild(phoneticBox);
-    appendNewElemWithText('span', area, phoneticBox, 'area');
-    appendNewElemWithText('span', phonetic, phoneticBox, 'phonetic');
-
-    // create the speaker image
-    speakerBuild(voiceURL, phoneticBox);
-  }
-}
-
-function speakerBuild(url, container) {
-  const speaker = document.createElement('img');
-  const speakerURL = chrome.runtime.getURL('src/speaker.png');
-  const speakerPlayingURL = chrome.runtime.getURL('src/speaking.gif');
-  speaker.src = speakerURL;
-  speaker.alt = 'speaker';
-  speaker.classList.add('speaker');
-  speaker.classList.add('dict-card');
-
-  // create the pronounciation voice source
-  const audio = document.createElement('audio');
-  audio.src = url;
-  document.documentElement.appendChild(audio);
-
-  // display an animation while playing
-  audio.addEventListener('play', () => {
-    speaker.src = speakerPlayingURL;
-  });
-  // end the animation when the playback ends
-  audio.addEventListener('ended', () => {
-    speaker.src = speakerURL;
-  });
-
-  // click the speaker to start playing
-  speaker.addEventListener('click', (event) => {
-    audio.play();
-  });
-
-  container.appendChild(speaker);
-  return speaker;
-}
-
-// auxiliary function to create a new element
-// and append a text node, and append the new element to a parent node
-function appendNewElemWithText(type, text, parent, className) {
-  if (text) {
-    const elementNode = document.createElement(type);
-    if (className) {
-      elementNode.classList.add(className);
+    // determine top and left according to the dimensions of the selected text
+    cardTop = top + maxHeight + window.scrollY + 5;
+    cardLeft = maxLeft + maxWidth / 2 - cardWidth / 2 + window.scrollX;
+    // adjust the position if there is not enough room for the card
+    const cardBottom = cardTop + cardHeight - window.scrollY;
+    const cardRight = cardLeft + cardWidth - window.scrollX;
+    // if not enough room bebeath, move it above the selected text
+    if (cardBottom > document.documentElement.clientHeight) {
+      cardTop = top - cardHeight - 5 + window.scrollY;
     }
-    elementNode.classList.add('dict-card');
-    const textNode = document.createTextNode(text);
-    elementNode.appendChild(textNode);
-    parent.appendChild(elementNode);
-    return elementNode;
-  }
-}
-
-// determine the position of the card
-function positionFigure(event, card, selected) {
-  let cardTop;
-  let cardLeft;
-  const cardWidth = card.clientWidth;
-  const cardHeight = card.clientHeight;
-  const selectedRects = selected.getRangeAt(0).getClientRects();
-  let maxHeight;
-  let maxWidth;
-  let top;
-  let currentTop;
-  let maxLeft;
-  let maxRight;
-
-  if (selectedRects.length == 1) {
-    // the simplest situation
-    top = selectedRects[0].top;
-    currentTop = top;
-    maxLeft = selectedRects[0].left;
-    maxHeight = selectedRects[0].height;
-    maxWidth = selectedRects[0].width;
-  } else {
-    // for multiple rects in a line and multiple lines with multiple rects
-    for (const item of selectedRects) {
-      if (!top) {
-        // initialize everything
-        // top: the very top of all rects
-        // currentTop: top of the current item
-        // max-parameter: the outmost extent in every dimension
-        top = item.top;
-        currentTop = top;
-        maxLeft = item.left;
-        maxHeight = item.height;
-        maxWidth = item.width;
-        maxRight = item.left + item.width;
-      } else if (item.top == currentTop) {
-        // rects in the same line extend the right border
-        maxRight += item.width;
-      } else if (item.top > currentTop) {
-        // a rect in another line
-        // increase height
-        // calculate the potential max-left and max-right increase
-        // update the current-top
-        maxHeight += item.height;
-        maxLeft = maxLeft < item.left ? maxLeft : item.left;
-        maxRight = maxRight > (item.left + item.width) ?
-          maxRight : (item.left + item.width);
-        currentTop = item.top;
-      } else {
-        // should never occur
-        console.log('Exception!');
-        // console.log(maxLeft);
-        // console.log(top);
-        // console.log(item);
-      }
+    // if the card reachh outside the viewport, drag it back
+    if (cardRight > document.documentElement.clientWidth) {
+      cardLeft = document.documentElement.clientWidth -
+        cardWidth - 5 + window.scrollX;
     }
-    // calculate the max-width
-    maxWidth = maxRight - maxLeft;
+    if (cardLeft < window.scrollX + 5) {
+      cardLeft = window.scrollX + 5;
+    }
+    card.style.top = cardTop + 'px';
+    card.style.left = cardLeft + 'px';
+    card.style.opacity = '1';
   }
-
-  // determine top and left according to the dimensions of the selected text
-  cardTop = top + maxHeight + window.scrollY + 5;
-  cardLeft = maxLeft + maxWidth / 2 - cardWidth / 2 + window.scrollX;
-
-  // adjust the position if there is not enough room for the card
-  const cardBottom = cardTop + cardHeight - window.scrollY;
-  const cardRight = cardLeft + cardWidth - window.scrollX;
-  // if not enough room bebeath, move it above the selected text
-  if (cardBottom > document.documentElement.clientHeight) {
-    cardTop = top - cardHeight - 5 + window.scrollY;
-  }
-  // if the card reachh outside the viewport, drag it back
-  if (cardRight > document.documentElement.clientWidth) {
-    cardLeft = document.documentElement.clientWidth -
-      cardWidth - 5 + window.scrollX;
-  }
-  if (cardLeft < window.scrollX + 5) {
-    cardLeft = window.scrollX + 5;
-  }
-  card.style.top = cardTop + 'px';
-  card.style.left = cardLeft + 'px';
-  card.style.opacity = '1';
 }
