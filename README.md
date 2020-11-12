@@ -13,11 +13,11 @@
 
 ## 预览图
 
-![查词](https://github.com/Clarkkkk/zidianka/blob/master/README.assets/chaci.gif | height=200px)
+<img width="600" src="https://github.com/Clarkkkk/zidianka/blob/master/README.assets/chaci.gif">
 
-![发音](https://github.com/Clarkkkk/zidianka/blob/master/README.assets/fayin.gif)
+<img width="600" src="https://github.com/Clarkkkk/zidianka/blob/master/README.assets/fayin.gif">
 
-![整句翻译](https://github.com/Clarkkkk/zidianka/blob/master/README.assets/chajuzi.gif)
+<img width="600" src="https://github.com/Clarkkkk/zidianka/blob/master/README.assets/chajuzi.gif">
 
 ## 待开发：
 
