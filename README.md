@@ -13,11 +13,11 @@
 
 ## 预览图
 
-![查词](D:\OneDrive\Workspace\DictionaryCard\README.assets\chaci.gif)
+![查词](https://github.com/Clarkkkk/zidianka/blob/master/README.assets/chaci.gif)
 
-![发音](D:\OneDrive\Workspace\DictionaryCard\README.assets\fayin.gif)
+![发音](https://github.com/Clarkkkk/zidianka/blob/master/README.assets/fayin.gif)
 
-![整句翻译](D:\OneDrive\Workspace\DictionaryCard\README.assets\chajuzi.gif)
+![整句翻译](https://github.com/Clarkkkk/zidianka/blob/master/README.assets/chajuzi.gif)
 
 ## 待开发：
 
