@@ -22,11 +22,11 @@ function initialize(options) {
 
     // requirements to activate querying
     const requirements =
-    options.withCtrl &&
-    event.ctrlKey &&
-    selected.length > 0 &&
-    selected.length < options.wordLimit &&
-    event.target !== host;
+      options.withCtrl &&
+      event.ctrlKey &&
+      selected.length > 0 &&
+      selected.length < options.wordLimit &&
+      event.target !== host;
 
     // create or return a shadow root
     // then fetch the data

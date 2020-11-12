@@ -11,7 +11,15 @@
 - API填写
 - 使用Ctrl查词
 
-## 正在开发：
+## 预览图
+
+![查词](D:\OneDrive\Workspace\DictionaryCard\README.assets\chaci.gif)
+
+![发音](D:\OneDrive\Workspace\DictionaryCard\README.assets\fayin.gif)
+
+![整句翻译](D:\OneDrive\Workspace\DictionaryCard\README.assets\chajuzi.gif)
+
+## 待开发：
 
 - 弹窗输入查询
 - 取词优化
