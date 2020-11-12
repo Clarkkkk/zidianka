@@ -13,7 +13,7 @@
 
 ## 预览图
 
-![查词](https://github.com/Clarkkkk/zidianka/blob/master/README.assets/chaci.gif)
+![查词](https://github.com/Clarkkkk/zidianka/blob/master/README.assets/chaci.gif | height=200px)
 
 ![发音](https://github.com/Clarkkkk/zidianka/blob/master/README.assets/fayin.gif)
 
